@@ -1,0 +1,871 @@
+TASK_NAME1,TASK_NAME2,EXEC_SQL_ON_SOURCE,EXEC_SQL_ON_TARGET
+Variable,IS_INCREMENTAL,,"SELECT	(CASE
+WHEN COUNT(*)>0 THEN 'Y'
+ELSE 'N'
+END )
+FROM	PRXBI_DW.W_ETL_LOAD_DATES
+WHERE	PACKAGE_NAME = 'SILOS_SIL_GLSEGMENTDIMENSION'
+AND	(DATASOURCE_NUM_ID=#BIAPPS.DATASOURCE_NUM_ID
+OR	DATASOURCE_NUM_ID=#BIAPPS.WH_DATASOURCE_NUM_ID)
+AND 	ETL_USAGE_CODE = '#BIAPPS.ETL_USAGE_CODE'
+AND	COMMITTED='1'"
+SERIAL,MAP_MAIN,,
+Insert reference dates to History Table,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Insert/Update reference dates into History Table */
+insert into PRXBI_DW.W_ETL_LOAD_DATES_LOG
+ (DATASOURCE_NUM_ID,
+  PACKAGE_NAME,
+  TARGET_TABLE_NAME,
+  ETL_USAGE_CODE,
+  ETL_PROC_WID,
+  LOAD_PLAN_ID,
+  SESSION_ID,
+  WIP_LOAD_START_DATE,
+  LAST_MAX_DATE,
+  ETL_LOAD_DATE,
+  COMMITTED
+ )
+select
+  DATASOURCE_NUM_ID,
+  PACKAGE_NAME,
+  TARGET_TABLE_NAME,
+  ETL_USAGE_CODE,
+  ETL_PROC_WID,
+  LOAD_PLAN_ID,
+  2625027,
+  WIP_LOAD_START_DATE,
+  LAST_MAX_DATE,
+  ETL_LOAD_DATE,
+  COMMITTED
+FROM PRXBI_DW.W_ETL_LOAD_DATES
+where DATASOURCE_NUM_ID = :BIAPPS.DATASOURCE_NUM_ID
+and PACKAGE_NAME = 'SILOS_SIL_GLSEGMENTDIMENSION'
+and ETL_USAGE_CODE = :BIAPPS.ETL_USAGE_CODE  "
+SERIAL,EU,,
+Initialization and log header,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* ===================================================
+--  IKM BIAPPS Oracle Slowly Changing Dimension
+--  11.1.1.11.1.20160419
+-- ===================================================
+
+---------------------------------------------------
+SCD Dimension Column Behaviour
+---------------------------------------------------
+Type 1 Columns (updated to match current record if UPDATE_ALL_HISTORY is set):
+[SCD Behaviour - overwrite on change, not OBI System Column (on column level flexfield)]
+	SCD1_WID
+	SEGMENT_LOV_ID
+	SEGMENT_VAL_CODE
+	CREATED_BY_WID
+	CHANGED_BY_WID
+	CREATED_ON_DT
+	CHANGED_ON_DT
+	AUX1_CHANGED_ON_DT
+	AUX2_CHANGED_ON_DT
+	AUX3_CHANGED_ON_DT
+	AUX4_CHANGED_ON_DT
+	SRC_EFF_FROM_DT
+	SRC_EFF_TO_DT
+	DELETE_FLG
+	W_INSERT_DT
+	W_UPDATE_DT
+	ETL_PROC_WID
+	SET_ID
+	TENANT_ID
+	X_CUSTOM
+Type 2 Columns (used to detect a change for a new record if TYPE2_FLG is set):
+[SCD Behaviour - insert new row on change, not mapped on TARGET]
+Change columns (used to exclude unchanged rows from processing):
+[Updateable columns, not mapped on TARGET, OBI Change Column (on column level flexfield)
+ or if no OBI Change Columns flagged then all updateable columns not mapped on TARGET]
+	CHANGED_ON_DT
+	AUX1_CHANGED_ON_DT
+	AUX2_CHANGED_ON_DT
+	AUX3_CHANGED_ON_DT
+	AUX4_CHANGED_ON_DT
+
+Has ROW_WID:	Y
+ 
+SCD1 column:
+[OBI SCD1 column (column level flexfield), not mapped on TARGET]
+	SCD1_WID
+ANALYZE_AFTER_INS_NEW_ROWS Option is Set to :	FULL
+Bulk Mode Option:	N
+DELETE_FLG column present:	Y
+Error Logging Option:		N
+Setting error table name to E$_2625027_1
+Error Logging Supported:		Y
+Is this a Dim ETL:		Y
+Auto Correction Enabled:		Y
+
+---------------------------------------------------
+Work Objects
+---------------------------------------------------
+Setting flow table name to PRXBI_DW.I$_2625027_1
+---------------------------------------------------
+Flex allocation change detection logic
+---------------------------------------------------
+
+--Exception Occured while running Flex SQL. Please verify all tables are exists in the Warehouse Schema  :java.sql.SQLSyntaxErrorException: ORA-00904: ""TO_DATE_FORMAT"": invalid identifier
+
+Adding Flex allocation change detection Predicate :	
+
+DATASOURCE_NUM_ID column is part of the Unique Key
+
+=================================================== */  "
+Diagnostics - Check Load Dates for current ETL_PROC_WID,IKM BIAPPS Oracle Slowly Changing Dimension,,"BEGIN
+--Check if records exists in W_ETL_LOAD_DATE TABLE for the current ETL_PROC_WID
+--ETL being executed outside a generated Load Plan
+
+NULL;
+END;  "
+Run Alter Session Commands,IKM BIAPPS Oracle Slowly Changing Dimension,,"BEGIN
+
+  NULL; 
+END;  "
+Insert flow into I$ table,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* DETECTION_STRATEGY = NOT_EXISTS */
+insert /*+ append */ into PRXBI_DW.I$_2625027_1
+(
+	SCD1_WID,
+	SEGMENT_LOV_ID,
+	SEGMENT_VAL_CODE,
+	CREATED_BY_WID,
+	CHANGED_BY_WID,
+	CREATED_ON_DT,
+	CHANGED_ON_DT,
+	AUX1_CHANGED_ON_DT,
+	AUX2_CHANGED_ON_DT,
+	AUX3_CHANGED_ON_DT,
+	AUX4_CHANGED_ON_DT,
+	SRC_EFF_FROM_DT,
+	SRC_EFF_TO_DT,
+	DELETE_FLG,
+	DATASOURCE_NUM_ID,
+	INTEGRATION_ID,
+	SET_ID,
+	TENANT_ID,
+	X_CUSTOM,
+	EFFECTIVE_FROM_DT,
+	EFFECTIVE_TO_DT,
+	IND_CURRENT_FLG,
+	IND_UPDATE
+)
+select 	 
+	SCD1_WID,
+	SEGMENT_LOV_ID,
+	SEGMENT_VAL_CODE,
+	CREATED_BY_WID,
+	CHANGED_BY_WID,
+	CREATED_ON_DT,
+	CHANGED_ON_DT,
+	AUX1_CHANGED_ON_DT,
+	AUX2_CHANGED_ON_DT,
+	AUX3_CHANGED_ON_DT,
+	AUX4_CHANGED_ON_DT,
+	SRC_EFF_FROM_DT,
+	SRC_EFF_TO_DT,
+	DELETE_FLG,
+	DATASOURCE_NUM_ID,
+	INTEGRATION_ID,
+	SET_ID,
+	TENANT_ID,
+	X_CUSTOM,
+	EFFECTIVE_FROM_DT,
+	EFFECTIVE_TO_DT,
+	'Y'  IND_CURRENT_FLG,
+	IND_UPDATE
+ from (
+select 	
+	0 SCD1_WID,
+	INLINE_VIEW.SEGMENT_LOV_ID SEGMENT_LOV_ID,
+	COALESCE(INLINE_VIEW.SEGMENT_VAL_CODE,'__NOT_APPLICABLE__') SEGMENT_VAL_CODE,
+	COALESCE(INLINE_VIEW.ROW_WID,0) CREATED_BY_WID,
+	COALESCE(LKP_W_USER_D_LKP_W_USER_D_CH_1.ROW_WID,0) CHANGED_BY_WID,
+	INLINE_VIEW.CREATED_ON_DT CREATED_ON_DT,
+	INLINE_VIEW.CHANGED_ON_DT CHANGED_ON_DT,
+	INLINE_VIEW.AUX1_CHANGED_ON_DT AUX1_CHANGED_ON_DT,
+	INLINE_VIEW.AUX2_CHANGED_ON_DT AUX2_CHANGED_ON_DT,
+	INLINE_VIEW.AUX3_CHANGED_ON_DT AUX3_CHANGED_ON_DT,
+	INLINE_VIEW.AUX4_CHANGED_ON_DT AUX4_CHANGED_ON_DT,
+	INLINE_VIEW.SRC_EFF_FROM_DT SRC_EFF_FROM_DT,
+	INLINE_VIEW.SRC_EFF_TO_DT SRC_EFF_TO_DT,
+	(CASE
+WHEN INLINE_VIEW.DELETE_FLG='Y' THEN 'Y'
+ELSE 'N'
+END ) DELETE_FLG,
+	INLINE_VIEW.DATASOURCE_NUM_ID DATASOURCE_NUM_ID,
+	INLINE_VIEW.INTEGRATION_ID INTEGRATION_ID,
+	INLINE_VIEW.SET_ID SET_ID,
+	INLINE_VIEW.TENANT_ID TENANT_ID,
+	INLINE_VIEW.X_CUSTOM X_CUSTOM,
+	COALESCE(INLINE_VIEW.SRC_EFF_FROM_DT,TO_DATE(SUBSTR('#BIAPPS.LOW_DATE',0,19),'YYYY-MM-DD HH24:MI:SS')) EFFECTIVE_FROM_DT,
+	TO_DATE(SUBSTR('#BIAPPS.HI_DT',0,19),'YYYY-MM-DD HH24:MI:SS') EFFECTIVE_TO_DT,
+	'I' IND_UPDATE
+from (
+SELECT 
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.X_CUSTOM AS X_CUSTOM ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.SRC_EFF_TO_DT AS SRC_EFF_TO_DT ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.DATASOURCE_NUM_ID AS DATASOURCE_NUM_ID ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.CREATED_ON_DT AS CREATED_ON_DT ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.CHANGED_ON_DT AS CHANGED_ON_DT ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.SEGMENT_VAL_CODE AS SEGMENT_VAL_CODE ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.AUX3_CHANGED_ON_DT AS AUX3_CHANGED_ON_DT ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.AUX1_CHANGED_ON_DT AS AUX1_CHANGED_ON_DT ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.AUX4_CHANGED_ON_DT AS AUX4_CHANGED_ON_DT ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.TENANT_ID AS TENANT_ID ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.SRC_EFF_FROM_DT AS SRC_EFF_FROM_DT ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.INTEGRATION_ID AS INTEGRATION_ID ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.CREATED_BY_ID AS CREATED_BY_ID ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.DELETE_FLG AS DELETE_FLG ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.SET_ID AS SET_ID ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.SEGMENT_LOV_ID AS SEGMENT_LOV_ID ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.CHANGED_BY_ID AS CHANGED_BY_ID ,
+  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.AUX2_CHANGED_ON_DT AS AUX2_CHANGED_ON_DT ,
+  LKP_W_USER_D_LKP_W_USER_D_CREA.DATASOURCE_NUM_ID AS DATASOURCE_NUM_ID_1 ,
+  LKP_W_USER_D_LKP_W_USER_D_CREA.ROW_WID AS ROW_WID ,
+  LKP_W_USER_D_LKP_W_USER_D_CREA.INTEGRATION_ID AS INTEGRATION_ID_1 ,
+  LKP_W_USER_D_LKP_W_USER_D_CREA.EFFECTIVE_TO_DT AS EFFECTIVE_TO_DT ,
+  LKP_W_USER_D_LKP_W_USER_D_CREA.EFFECTIVE_FROM_DT AS EFFECTIVE_FROM_DT   
+FROM 
+  
+( /* Subselect from SIL_GLSegmentDimension.W_GL_SEGMENT_D
+*/
+
+select 
+	  
+
+	   (MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.X_CUSTOM))	AS X_CUSTOM,
+	W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.SRC_EFF_TO_DT	AS SRC_EFF_TO_DT,
+	W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.DATASOURCE_NUM_ID	AS DATASOURCE_NUM_ID,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.CREATED_ON_DT))	AS CREATED_ON_DT,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.CHANGED_ON_DT))	AS CHANGED_ON_DT,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.SEGMENT_VAL_CODE))	AS SEGMENT_VAL_CODE,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.AUX3_CHANGED_ON_DT))	AS AUX3_CHANGED_ON_DT,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.AUX1_CHANGED_ON_DT))	AS AUX1_CHANGED_ON_DT,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.AUX4_CHANGED_ON_DT))	AS AUX4_CHANGED_ON_DT,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.TENANT_ID))	AS TENANT_ID,
+	W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.SRC_EFF_FROM_DT	AS SRC_EFF_FROM_DT,
+	W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.INTEGRATION_ID	AS INTEGRATION_ID,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.CREATED_BY_ID))	AS CREATED_BY_ID,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.DELETE_FLG))	AS DELETE_FLG,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.SET_ID))	AS SET_ID,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.SEGMENT_LOV_ID))	AS SEGMENT_LOV_ID,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.CHANGED_BY_ID))	AS CHANGED_BY_ID,
+	(MAX(W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.AUX2_CHANGED_ON_DT))	AS AUX2_CHANGED_ON_DT
+from	PRXBI_DW.W_GL_SEGMENT_DS W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN
+where	(1=1)
+group by W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.SRC_EFF_TO_DT, W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.DATASOURCE_NUM_ID, W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.SRC_EFF_FROM_DT, W_GL_SEGMENT_DS_SQ_W_GL_SEGMEN.INTEGRATION_ID
+)  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG  LEFT OUTER JOIN  
+( /* Subselect from SIL_GLSegmentDimension.W_GL_SEGMENT_D
+*/
+
+select 
+	  
+
+	   W_USER_D_LKP_W_USER_D_CREATED_.DATASOURCE_NUM_ID	AS DATASOURCE_NUM_ID,
+	W_USER_D_LKP_W_USER_D_CREATED_.ROW_WID	AS ROW_WID,
+	W_USER_D_LKP_W_USER_D_CREATED_.INTEGRATION_ID	AS INTEGRATION_ID,
+	W_USER_D_LKP_W_USER_D_CREATED_.EFFECTIVE_TO_DT	AS EFFECTIVE_TO_DT,
+	W_USER_D_LKP_W_USER_D_CREATED_.EFFECTIVE_FROM_DT	AS EFFECTIVE_FROM_DT
+from	PRXBI_DW.W_USER_D W_USER_D_LKP_W_USER_D_CREATED_
+where	(1=1)
+ and (W_USER_D_LKP_W_USER_D_CREATED_.DELETE_FLG = 'N')
+)  LKP_W_USER_D_LKP_W_USER_D_CREA  
+    ON  SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.DATASOURCE_NUM_ID = LKP_W_USER_D_LKP_W_USER_D_CREA.DATASOURCE_NUM_ID
+AND	SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.CREATED_BY_ID = LKP_W_USER_D_LKP_W_USER_D_CREA.INTEGRATION_ID
+AND	SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.CHANGED_ON_DT >= LKP_W_USER_D_LKP_W_USER_D_CREA.EFFECTIVE_FROM_DT
+AND	SQ_W_GL_SEGMENT_DS_SQ_W_GL_SEG.CHANGED_ON_DT < LKP_W_USER_D_LKP_W_USER_D_CREA.EFFECTIVE_TO_DT
+  ) INLINE_VIEW  LEFT OUTER JOIN  (
+SELECT 
+  LKP_W_USER_D_LKP_W_USER_D_CHAN.DATASOURCE_NUM_ID AS DATASOURCE_NUM_ID ,
+  LKP_W_USER_D_LKP_W_USER_D_CHAN.ROW_WID AS ROW_WID ,
+  LKP_W_USER_D_LKP_W_USER_D_CHAN.INTEGRATION_ID AS INTEGRATION_ID ,
+  LKP_W_USER_D_LKP_W_USER_D_CHAN.EFFECTIVE_TO_DT AS EFFECTIVE_TO_DT ,
+  LKP_W_USER_D_LKP_W_USER_D_CHAN.EFFECTIVE_FROM_DT AS EFFECTIVE_FROM_DT   
+FROM 
+  
+( /* Subselect from SIL_GLSegmentDimension.W_GL_SEGMENT_D
+*/
+
+select 
+	  
+
+	   W_USER_D_LKP_W_USER_D_CHANGED_.DATASOURCE_NUM_ID	AS DATASOURCE_NUM_ID,
+	W_USER_D_LKP_W_USER_D_CHANGED_.ROW_WID	AS ROW_WID,
+	W_USER_D_LKP_W_USER_D_CHANGED_.INTEGRATION_ID	AS INTEGRATION_ID,
+	W_USER_D_LKP_W_USER_D_CHANGED_.EFFECTIVE_TO_DT	AS EFFECTIVE_TO_DT,
+	W_USER_D_LKP_W_USER_D_CHANGED_.EFFECTIVE_FROM_DT	AS EFFECTIVE_FROM_DT
+from	PRXBI_DW.W_USER_D W_USER_D_LKP_W_USER_D_CHANGED_
+where	(1=1)
+ and (W_USER_D_LKP_W_USER_D_CHANGED_.DELETE_FLG = 'N')
+)  LKP_W_USER_D_LKP_W_USER_D_CHAN  
+  ) LKP_W_USER_D_LKP_W_USER_D_CH_1  
+    ON  INLINE_VIEW.DATASOURCE_NUM_ID = LKP_W_USER_D_LKP_W_USER_D_CH_1.DATASOURCE_NUM_ID
+AND	INLINE_VIEW.CHANGED_BY_ID = LKP_W_USER_D_LKP_W_USER_D_CH_1.INTEGRATION_ID
+AND	INLINE_VIEW.CHANGED_ON_DT >= LKP_W_USER_D_LKP_W_USER_D_CH_1.EFFECTIVE_FROM_DT
+AND	INLINE_VIEW.CHANGED_ON_DT < LKP_W_USER_D_LKP_W_USER_D_CH_1.EFFECTIVE_TO_DT
+where	(1=1)
+) S
+
+where NOT EXISTS 
+	( select 1 from PRXBI_DW.W_GL_SEGMENT_D T
+	where	T.SRC_EFF_FROM_DT	= S.SRC_EFF_FROM_DT
+	and	T.DATASOURCE_NUM_ID	= S.DATASOURCE_NUM_ID
+	and	T.INTEGRATION_ID	= S.INTEGRATION_ID 
+
+	and	(CASE WHEN T.CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE T.CHANGED_ON_DT END = CASE WHEN S.CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE S.CHANGED_ON_DT END)
+	and	(CASE WHEN T.AUX1_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE T.AUX1_CHANGED_ON_DT END = CASE WHEN S.AUX1_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE S.AUX1_CHANGED_ON_DT END)
+	and	(CASE WHEN T.AUX2_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE T.AUX2_CHANGED_ON_DT END = CASE WHEN S.AUX2_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE S.AUX2_CHANGED_ON_DT END)
+	and	(CASE WHEN T.AUX3_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE T.AUX3_CHANGED_ON_DT END = CASE WHEN S.AUX3_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE S.AUX3_CHANGED_ON_DT END)
+	and	(CASE WHEN T.AUX4_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE T.AUX4_CHANGED_ON_DT END = CASE WHEN S.AUX4_CHANGED_ON_DT IS NULL THEN TO_DATE('01-01-3714', 'DD/MM/YYYY') ELSE S.AUX4_CHANGED_ON_DT END)
+
+ 
+        )
+
+   "
+Alter Session - Char Semantics,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+
+/* Below statement ensure table lengths are proper for Oracle Unicode Enabled DBs.
+ */
+BEGIN
+EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_DATE_FORMAT=''DD/MON/YYYY HH24:MI:SS''';
+EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR'  ; 
+END;
+
+  "
+Diagnostics - Create Error Table,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* Creates the error table during Error Logging Mode */
+CREATE TABLE PRXBI_DW.E$_2625027_1
+( 
+	ORA_ERR_NUMBER$		NUMBER,         
+	ORA_ERR_MESG$		VARCHAR2(2000),
+	ORA_ERR_ROWID$		UROWID,
+	ORA_ERR_OPTYP$		VARCHAR2(2),
+	ORA_ERR_TAG$		VARCHAR2(2000),
+	IND_UPDATE			VARCHAR2(10),
+	DIAGNOSTIC_ROWID		UROWID,
+	ERROR_TYPE_IND		VARCHAR2(100),	
+	AUTOCORRECT_IND		VARCHAR2(100)  DEFAULT 'N',
+	AUTOCORRECT_CODE		VARCHAR2(2000),
+	AUTOCORRECT_DESC		VARCHAR2(2000),
+	COMMITTED			VARCHAR2(10) DEFAULT '0',
+	ROW_WID		 VARCHAR2(4000),
+	 SCD1_WID		 VARCHAR2(4000),
+	 SEGMENT_LOV_ID		 VARCHAR2(4000),
+	 SEGMENT_VAL_CODE		 VARCHAR2(4000),
+	 CREATED_BY_WID		 VARCHAR2(4000),
+	 CHANGED_BY_WID		 VARCHAR2(4000),
+	 CREATED_ON_DT		 VARCHAR2(4000),
+	 CHANGED_ON_DT		 VARCHAR2(4000),
+	 AUX1_CHANGED_ON_DT		 VARCHAR2(4000),
+	 AUX2_CHANGED_ON_DT		 VARCHAR2(4000),
+	 AUX3_CHANGED_ON_DT		 VARCHAR2(4000),
+	 AUX4_CHANGED_ON_DT		 VARCHAR2(4000),
+	 SRC_EFF_FROM_DT		 VARCHAR2(4000),
+	 SRC_EFF_TO_DT		 VARCHAR2(4000),
+	 EFFECTIVE_FROM_DT		 VARCHAR2(4000),
+	 EFFECTIVE_TO_DT		 VARCHAR2(4000),
+	 
+	 CURRENT_FLG		 VARCHAR2(4000),
+	 W_INSERT_DT		 VARCHAR2(4000),
+	 W_UPDATE_DT		 VARCHAR2(4000),
+	 DATASOURCE_NUM_ID		 VARCHAR2(4000),
+	 ETL_PROC_WID		 VARCHAR2(4000),
+	 INTEGRATION_ID		 VARCHAR2(4000),
+	 SET_ID		 VARCHAR2(4000),
+	 TENANT_ID		 VARCHAR2(4000),
+	 X_CUSTOM		 VARCHAR2(4000),
+	DELETE_FLG			VARCHAR2(4000)
+) NOLOGGING
+  "
+Diagnostics - Drop Error Table,IKM BIAPPS Oracle Slowly Changing Dimension,, drop table  PRXBI_DW.E$_2625027_1  purge    
+Table Maintenance - Clean Truncated Entry,IKM BIAPPS Oracle Slowly Changing Dimension,,  
+Table Maintenance Before,IKM BIAPPS Oracle Slowly Changing Dimension,,  
+Drop flow table (I$),IKM BIAPPS Oracle Slowly Changing Dimension,,"
+drop table PRXBI_DW.I$_2625027_1 purge  "
+Create flow table (I$),IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Creates the flow table with the parameters specified in the FLOW_TABLE_OPTIONS option */
+create table PRXBI_DW.I$_2625027_1
+(
+	SRC_EFF_FROM_DT		DATE NULL,
+	DATASOURCE_NUM_ID		NUMBER(10,0) NULL,
+	INTEGRATION_ID		VARCHAR2(200) NULL,
+	ROW_WID		NUMBER NULL,
+	SCD1_WID		NUMBER NULL,
+	SEGMENT_LOV_ID		VARCHAR2(4000) NULL,
+	SEGMENT_VAL_CODE		VARCHAR2(4000) NULL,
+	CREATED_BY_WID		NUMBER NULL,
+	CHANGED_BY_WID		NUMBER NULL,
+	CREATED_ON_DT		DATE NULL,
+	CHANGED_ON_DT		DATE NULL,
+	AUX1_CHANGED_ON_DT		DATE NULL,
+	AUX2_CHANGED_ON_DT		DATE NULL,
+	AUX3_CHANGED_ON_DT		DATE NULL,
+	AUX4_CHANGED_ON_DT		DATE NULL,
+	SRC_EFF_TO_DT		DATE NULL,
+	EFFECTIVE_FROM_DT		DATE NULL,
+	EFFECTIVE_TO_DT		DATE NULL,
+	DELETE_FLG		CHAR(1) NULL,
+	CURRENT_FLG		CHAR(1) NULL,
+	W_INSERT_DT		DATE NULL,
+	W_UPDATE_DT		DATE NULL,
+	ETL_PROC_WID		NUMBER NULL,
+	SET_ID		VARCHAR2(4000) NULL,
+	TENANT_ID		VARCHAR2(4000) NULL,
+	X_CUSTOM		VARCHAR2(4000) NULL,
+	IND_UPDATE		CHAR(1),
+	IND_CURRENT_FLG	CHAR(1)
+)
+NOLOGGING  "
+Flag rows for update,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Sets the flow table update indicator to U(pdate) if the record exists in the target table */
+/* Also points the update at the latest target SCD timestamp */
+
+update PRXBI_DW.I$_2625027_1 S
+set 
+ S.IND_UPDATE = 'U'
+,S.EFFECTIVE_FROM_DT =
+ (SELECT MAX(T.EFFECTIVE_FROM_DT)
+  FROM PRXBI_DW.W_GL_SEGMENT_D T
+  WHERE T.SRC_EFF_FROM_DT = S.SRC_EFF_FROM_DT
+  AND T.DATASOURCE_NUM_ID = S.DATASOURCE_NUM_ID
+  AND T.INTEGRATION_ID = S.INTEGRATION_ID)
+where (S.SRC_EFF_FROM_DT, S.DATASOURCE_NUM_ID, S.INTEGRATION_ID) in
+ (select T.SRC_EFF_FROM_DT,T.DATASOURCE_NUM_ID,T.INTEGRATION_ID
+  from PRXBI_DW.W_GL_SEGMENT_D T)
+  "
+Detect type 2 changes,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Sets update indicator to S (insert new type 2 record for type 2 change to current record) */
+/* No Type 2 Columns in model */
+  "
+Diagnostics - Fix Datatype Mismatches (Dim ETL),IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* Step Bypassed */
+   "
+Create flow table UK index,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Creates index on flow table unique key */
+create index	I$_2625027_1_UK
+on	PRXBI_DW.I$_2625027_1
+ (DATASOURCE_NUM_ID, INTEGRATION_ID,
+  EFFECTIVE_FROM_DT,
+  IND_UPDATE
+)
+NOLOGGING  "
+Analyze integration table,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+begin
+    dbms_stats.gather_table_stats(
+	ownname => 'PRXBI_DW',
+	tabname => 'I$_2625027_1',
+	estimate_percent => dbms_stats.auto_sample_size,
+	method_opt => 'FOR ALL INDEXED COLUMNS SIZE AUTO',
+	degree => DBMS_STATS.DEFAULT_DEGREE
+    );
+end;
+  "
+Diagnostics - Create Target Replica Table,CKM BIAPPS Oracle,,"
+/* Step bypassed in Non Error Logging Mode */
+  "
+Diagnostics - Add DIAG columns to ReplicaTable,CKM BIAPPS Oracle,,"
+/* Step bypassed in Non Error Logging Mode */
+  "
+Fix effective dates (full),IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* Not required for incremental load */
+  "
+Flag rows as update for already existing target rows,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Sets update indicator to U for records with update indicator I or S with matching SCD Natural Key and SCD Start Timestamp in target table*/
+
+/* Only required for type 2 dimension in incremental load */
+  "
+Flag rows as no change for duplicate data,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Flag Duplicate rows as no change */
+
+/* Only Required for type 2 dimension in incremental load */
+  "
+Diagnostics - Drop Target Replica Table,CKM BIAPPS Oracle,,/*Error Logging not enabled */   
+Diagnostics - Find Dupes on I$ (Update),CKM BIAPPS Oracle,,"
+/* Step bypassed in Non Error Logging Mode */
+  "
+Diagnostics - Dim Fixes and E$ AutoCorrect Flag Update,CKM BIAPPS Oracle,,"BEGIN
+
+ 
+
+ 
+NULL;
+END;   "
+Run Alter Session1 Commands,IKM BIAPPS Oracle Slowly Changing Dimension,,"BEGIN
+
+  NULL; 
+END;  "
+"Diagnostics - Find Dupes,Cnstrnt Vltn rows on I$",CKM BIAPPS Oracle,,"
+/* Step bypassed in Non Error Logging Mode */
+  "
+Diagnostics - Insert New Rows into Replica Table,CKM BIAPPS Oracle,,"
+/* Step bypassed in Non Error Logging Mode */
+  "
+Diagnostics - Reinsert String violation records into Replica,CKM BIAPPS Oracle,,"
+/* Step bypassed in Non Error Logging Mode */
+   "
+Diagnostics - Flag bad rows in I$,CKM BIAPPS Oracle,,"
+
+  "
+Diagnostics - Raise Error for Unacceptable Errors (Dim ETL),CKM BIAPPS Oracle,,  
+Diagnostics - Selective Autocorrect of I$,CKM BIAPPS Oracle,,"BEGIN
+NULL;
+
+/* Error Logging not supported/Autocorrect not enabled/Not an Error Logging ETL run */ 
+
+END;   "
+Insert new type 1 values,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+insert /*+ append */  into PRXBI_DW.W_GL_SEGMENT_T1_D
+(SCD1_WID,
+ DATASOURCE_NUM_ID,
+ INTEGRATION_ID,
+ W_INSERT_DT,
+ W_UPDATE_DT,
+ ETL_PROC_WID)
+select
+ PRXBI_DW.W_GL_SEGMENT_D_S1W.NEXTVAL,
+ DATASOURCE_NUM_ID,
+ INTEGRATION_ID,
+ SYSDATE,
+ SYSDATE,
+ #BIAPPS.ETL_PROC_WID
+from
+ 
+ (select 
+   I.DATASOURCE_NUM_ID
+  ,I.INTEGRATION_ID 
+  from (SELECT * FROM PRXBI_DW.I$_2625027_1 WHERE IND_UPDATE <>'X')  I 
+  left outer join PRXBI_DW.W_GL_SEGMENT_T1_D T1 on 
+   (T1.DATASOURCE_NUM_ID = I.DATASOURCE_NUM_ID AND
+    T1.INTEGRATION_ID = I.INTEGRATION_ID) 
+  where T1.SCD1_WID is null 
+  group by I.DATASOURCE_NUM_ID
+  ,I.INTEGRATION_ID) 
+
+  "
+Truncate delete table,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+delete from PRXBI_DW.W_GL_SEGMENT_D_DEL D
+WHERE EXISTS
+(SELECT 1 FROM PRXBI_DW.W_GL_SEGMENT_D F
+WHERE F.SRC_EFF_FROM_DT = D.SRC_EFF_FROM_DT AND
+    F.DATASOURCE_NUM_ID = D.DATASOURCE_NUM_ID AND
+    F.INTEGRATION_ID = D.INTEGRATION_ID AND F.DELETE_FLG = 'Y' )
+  "
+Diagnostics - Insert Diagnostic Summary Table,CKM BIAPPS Oracle,,"DECLARE
+V_ERR_COUNT INTEGER;
+BEGIN
+/*Error Logging not enabled */ 
+NULL;
+END;  "
+Diagnostics - Drop Target Replica Table,CKM BIAPPS Oracle,,/*Error Logging not enabled */   
+Soft delete preprocess,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Identify deleted records by comparing primary extract keys  with target table */
+
+insert into PRXBI_DW.W_GL_SEGMENT_D_DEL
+(SRC_EFF_FROM_DT
+, DATASOURCE_NUM_ID
+, INTEGRATION_ID )
+select
+T.SRC_EFF_FROM_DT
+, T.DATASOURCE_NUM_ID
+, T.INTEGRATION_ID 
+from
+PRXBI_DW.W_GL_SEGMENT_D  T
+left outer join PRXBI_DW.W_GL_SEGMENT_D_PE  S
+on T.SRC_EFF_FROM_DT =S.SRC_EFF_FROM_DT and
+   T.DATASOURCE_NUM_ID =S.DATASOURCE_NUM_ID and
+   T.INTEGRATION_ID =S.INTEGRATION_ID
+where S.SRC_EFF_FROM_DT IS NULL
+and S.DATASOURCE_NUM_ID IS NULL
+and S.INTEGRATION_ID IS NULL 
+and T.DELETE_FLG = 'N' 
+
+and T.CREATED_ON_DT > TO_DATE(SUBSTR('#BIAPPS.LAST_ARCHIVE_DATE',0,19),'YYYY-MM-DD HH24:MI:SS')
+
+and T.ROW_WID > 0
+
+and exists
+ (select 1
+  from PRXBI_DW.W_GL_SEGMENT_D_PE DS
+  where T.DATASOURCE_NUM_ID = DS.DATASOURCE_NUM_ID
+ )
+  "
+Soft delete preprocess-SDS Sources,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* SDS Mode-> Identify deleted records from Stage table as a source when there are records where DELETE_FLG = 'Y' */
+
+insert into PRXBI_DW.W_GL_SEGMENT_D_DEL
+(SRC_EFF_FROM_DT
+, DATASOURCE_NUM_ID
+, INTEGRATION_ID )
+select
+T.SRC_EFF_FROM_DT
+, T.DATASOURCE_NUM_ID
+, T.INTEGRATION_ID 
+from
+PRXBI_DW.I$_2625027_1  T
+where T.DELETE_FLG = 'Y' 
+and not exists
+ (select 1
+  from PRXBI_DW.W_GL_SEGMENT_D_DEL DEL
+  where T.SRC_EFF_FROM_DT =DEL.SRC_EFF_FROM_DT and
+   T.DATASOURCE_NUM_ID =DEL.DATASOURCE_NUM_ID and
+   T.INTEGRATION_ID =DEL.INTEGRATION_ID
+ )
+  "
+Fix effective dates,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* Incremental Load */
+update PRXBI_DW.W_GL_SEGMENT_D T
+set
+(
+ T.EFFECTIVE_TO_DT
+,T.CURRENT_FLG
+) =
+ (select
+   COALESCE(MIN(T0.EFFECTIVE_FROM_DT),
+           TO_DATE(SUBSTR('#BIAPPS.HI_DT',0,19),'YYYY-MM-DD HH24:MI:SS'))
+  ,case when MIN(T0.EFFECTIVE_FROM_DT) IS NULL
+        then 'Y'
+        else 'N'
+   end
+  from PRXBI_DW.W_GL_SEGMENT_D T0
+  where T.DATASOURCE_NUM_ID = T0.DATASOURCE_NUM_ID
+  and T.INTEGRATION_ID = T0.INTEGRATION_ID
+  and T.EFFECTIVE_FROM_DT < T0.EFFECTIVE_FROM_DT
+  and T0.DELETE_FLG = 'N'
+ )
+where T.ROWID IN
+ (SELECT /*+ LEADING(I0) */
+   T0.ROWID
+  FROM
+   PRXBI_DW.W_GL_SEGMENT_D T0
+  ,PRXBI_DW.W_GL_SEGMENT_D I0
+  WHERE I0.ETL_PROC_WID = #BIAPPS.ETL_PROC_WID
+  AND T0.DATASOURCE_NUM_ID = I0.DATASOURCE_NUM_ID
+  AND T0.INTEGRATION_ID = I0.INTEGRATION_ID
+  AND T0.EFFECTIVE_FROM_DT <= I0.EFFECTIVE_FROM_DT
+  AND T0.EFFECTIVE_TO_DT >= I0.EFFECTIVE_FROM_DT
+  AND T0.DELETE_FLG = 'N')
+  "
+Soft delete on target,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Update target table soft delete flag for records in the delete queue */
+
+update PRXBI_DW.W_GL_SEGMENT_D  T
+set
+ T.DELETE_FLG = 'Y'
+,T.CURRENT_FLG = 'N'
+,T.W_UPDATE_DT = SYSDATE
+,T.ETL_PROC_WID = #BIAPPS.ETL_PROC_WID
+where (T.SRC_EFF_FROM_DT, T.DATASOURCE_NUM_ID, T.INTEGRATION_ID) IN
+ (select D.SRC_EFF_FROM_DT, D.DATASOURCE_NUM_ID, D.INTEGRATION_ID
+  from
+   PRXBI_DW.W_GL_SEGMENT_D_DEL  D)
+  "
+Insert Unspecified record,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* Skipping for incremental load */
+   "
+Insert new dimension records,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Inserts new dimension records */
+
+insert  into PRXBI_DW.W_GL_SEGMENT_D
+(
+	ROW_WID,
+	DATASOURCE_NUM_ID,
+	INTEGRATION_ID,
+	SEGMENT_LOV_ID,
+	SEGMENT_VAL_CODE,
+	SET_ID,
+	TENANT_ID,
+	X_CUSTOM,
+
+	CREATED_BY_WID,
+	CHANGED_BY_WID,
+	CREATED_ON_DT,
+	CHANGED_ON_DT,
+	AUX1_CHANGED_ON_DT,
+	AUX2_CHANGED_ON_DT,
+	AUX3_CHANGED_ON_DT,
+	AUX4_CHANGED_ON_DT,
+	SRC_EFF_FROM_DT,
+	SRC_EFF_TO_DT,
+	DELETE_FLG,
+	W_INSERT_DT,
+	W_UPDATE_DT,
+	ETL_PROC_WID,
+	SCD1_WID,
+	CURRENT_FLG,
+	EFFECTIVE_FROM_DT,
+	EFFECTIVE_TO_DT
+)
+select 
+	PRXBI_DW.W_GL_SEGMENT_D_SEQ.NEXTVAL ROW_WID,
+	S.DATASOURCE_NUM_ID,
+	S.INTEGRATION_ID,
+	S.SEGMENT_LOV_ID,
+	S.SEGMENT_VAL_CODE,
+	S.SET_ID,
+	S.TENANT_ID,
+	S.X_CUSTOM,
+
+	S.CREATED_BY_WID,
+	S.CHANGED_BY_WID,
+	S.CREATED_ON_DT,
+	S.CHANGED_ON_DT,
+	S.AUX1_CHANGED_ON_DT,
+	S.AUX2_CHANGED_ON_DT,
+	S.AUX3_CHANGED_ON_DT,
+	S.AUX4_CHANGED_ON_DT,
+	S.SRC_EFF_FROM_DT,
+	S.SRC_EFF_TO_DT,
+	S.DELETE_FLG,
+	SYSDATE W_INSERT_DT,
+	SYSDATE W_UPDATE_DT,
+	#BIAPPS.ETL_PROC_WID ETL_PROC_WID,
+	SCD1.SCD1_WID,
+	S.IND_CURRENT_FLG CURRENT_FLG,
+	S.EFFECTIVE_FROM_DT,
+	S.EFFECTIVE_TO_DT
+from	PRXBI_DW.I$_2625027_1 S
+inner join PRXBI_DW.W_GL_SEGMENT_T1_D SCD1 on
+ (SCD1.DATASOURCE_NUM_ID = S.DATASOURCE_NUM_ID and
+  SCD1.INTEGRATION_ID = S.INTEGRATION_ID)
+where 	S.IND_UPDATE IN ('I','S')
+  "
+Analyze target table before Updates,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* Not collecting stats (ANALYZE_AFTER_INS_NEW_ROWS option not set to run collect stat, Below are the valid option values)
+FULL-:  If set to FULL, then during FULL Load after insert new rows, analyze the table. 
+ALL-: If set to ALL, then always after insert new rows, analyze the table. 
+NONE-: If set to NONE, then skip the analyze after insert new rows. 
+*/
+  "
+Update existing rows,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Updates changes to existing dimension records */
+
+update	PRXBI_DW.W_GL_SEGMENT_D T
+set
+(
+ T.SEGMENT_LOV_ID,
+ T.SEGMENT_VAL_CODE,
+ T.CREATED_BY_WID,
+ T.CHANGED_BY_WID,
+ T.CREATED_ON_DT,
+ T.CHANGED_ON_DT,
+ T.AUX1_CHANGED_ON_DT,
+ T.AUX2_CHANGED_ON_DT,
+ T.AUX3_CHANGED_ON_DT,
+ T.AUX4_CHANGED_ON_DT,
+ T.SRC_EFF_FROM_DT,
+ T.SRC_EFF_TO_DT,
+ T.DELETE_FLG,
+ T.SET_ID,
+ T.TENANT_ID,
+ T.X_CUSTOM
+ ,T.W_UPDATE_DT,
+ T.ETL_PROC_WID
+) =
+ (select
+   X.SEGMENT_LOV_ID,
+   X.SEGMENT_VAL_CODE,
+   X.CREATED_BY_WID,
+   X.CHANGED_BY_WID,
+   X.CREATED_ON_DT,
+   X.CHANGED_ON_DT,
+   X.AUX1_CHANGED_ON_DT,
+   X.AUX2_CHANGED_ON_DT,
+   X.AUX3_CHANGED_ON_DT,
+   X.AUX4_CHANGED_ON_DT,
+   X.SRC_EFF_FROM_DT,
+   X.SRC_EFF_TO_DT,
+   X.DELETE_FLG,
+   X.SET_ID,
+   X.TENANT_ID,
+   X.X_CUSTOM
+   ,SYSDATE,
+   #BIAPPS.ETL_PROC_WID
+  from PRXBI_DW.I$_2625027_1 X
+  where X.EFFECTIVE_FROM_DT = T.EFFECTIVE_FROM_DT
+  and X.DATASOURCE_NUM_ID = T.DATASOURCE_NUM_ID
+  and X.INTEGRATION_ID = T.INTEGRATION_ID
+  and X.IND_UPDATE	= 'U'
+ )
+where (T.EFFECTIVE_FROM_DT, T.DATASOURCE_NUM_ID, T.INTEGRATION_ID) in
+ (select S.EFFECTIVE_FROM_DT, S.DATASOURCE_NUM_ID, S.INTEGRATION_ID
+  from PRXBI_DW.I$_2625027_1 S
+  where S.IND_UPDATE = 'U'
+ )
+
+  "
+Historize old rows,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Update existing records end dates and current flag to make room for new inserts */
+
+update PRXBI_DW.W_GL_SEGMENT_D T
+set
+(
+ T.CURRENT_FLG,
+ T.EFFECTIVE_TO_DT
+) =
+(select
+   'N',
+   MIN(S.EFFECTIVE_FROM_DT)
+  from PRXBI_DW.I$_2625027_1 S
+  where S.DATASOURCE_NUM_ID = T.DATASOURCE_NUM_ID
+  and S.INTEGRATION_ID = T.INTEGRATION_ID
+  and S.EFFECTIVE_FROM_DT > T.EFFECTIVE_FROM_DT
+  and S.EFFECTIVE_FROM_DT < T.EFFECTIVE_TO_DT
+  and S.IND_UPDATE IN ('I','S')
+ )
+where exists
+ (select 'X' 
+  from PRXBI_DW.I$_2625027_1 I0
+  where I0.DATASOURCE_NUM_ID=T.DATASOURCE_NUM_ID
+  and I0.INTEGRATION_ID=T.INTEGRATION_ID
+  and I0.EFFECTIVE_FROM_DT > T.EFFECTIVE_FROM_DT
+  and I0.EFFECTIVE_FROM_DT < T.EFFECTIVE_TO_DT
+  and I0.IND_UPDATE IN ('I','S')
+)
+  and T.DELETE_FLG = 'N'
+  "
+Update all history,IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Update all history only when #BIAPPS.UPDATE_ALL_HISTORY is set to Y */
+/* Columns with the OBI_SYSTEM_COLUMN flexfield set will NOT be updated */
+/* Also, any field mapped to the target will have that value used */
+
+
+/* Update History is not set */
+
+  "
+Insert reference dates,IKM BIAPPS Oracle Slowly Changing Dimension,,"--Check if records exists in W_ETL_LOAD_DATE TABLE
+--Query run
+--select count(1),MAX(LAST_MAX_DATE) from PRXBI_DW.W_ETL_LOAD_DATES where  DATASOURCE_NUM_ID = 999 and PACKAGE_NAME = 'SILOS_SIL_GLSEGMENTDIMENSION' and ETL_USAGE_CODE = '__NOT_APPLICABLE__'
+--Result:1,2025-11-06 20:20:18.0
+
+--Insert/Update reference dates
+
+update PRXBI_DW.W_ETL_LOAD_DATES
+set 
+  TARGET_TABLE_NAME =   'W_GL_SEGMENT_D',
+  ETL_PROC_WID =   :BIAPPS.ETL_PROC_WID,
+  LOAD_PLAN_ID = :BIAPPS.EXECUTION_ID,
+  WIP_LOAD_START_DATE =   (SYSDATE+(-1)*#BIAPPS.PRUNE_DAYS),  
+
+  ETL_LOAD_DATE =   SYSDATE,
+  COMMITTED = DECODE('#BIAPPS.IS_INCREMENTAL','Y','1','0')
+where DATASOURCE_NUM_ID = :BIAPPS.DATASOURCE_NUM_ID
+and PACKAGE_NAME = 'SILOS_SIL_GLSEGMENTDIMENSION'
+and ETL_USAGE_CODE = :BIAPPS.ETL_USAGE_CODE
+
+  "
+Commit Transaction,IKM BIAPPS Oracle Slowly Changing Dimension,,"/*commit*/
+ "
+Table Maintenance After,IKM BIAPPS Oracle Slowly Changing Dimension,,  
+Diagnostics - Update Committed Flag,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+/* Step bypassed */
+
+  "
+Diagnostics - Find Duplicates and Autocorrect,IKM BIAPPS Oracle Slowly Changing Dimension,,"--Derive OBI_TABLE_MAINTENANCE behaviour for target table
+--Table Truncate behaviour: FULL
+--Truncate Table Behaviour Always ?:	false
+--Is Full Mode ?:	false
+
+
+/* Step bypassed */
+  "
+Drop flow table (I$),IKM BIAPPS Oracle Slowly Changing Dimension,,"/* Optionally drops flow table */
+drop table PRXBI_DW.I$_2625027_1 purge  "
+Diagnostics - Drop Error Table if empty,IKM BIAPPS Oracle Slowly Changing Dimension,,"
+DECLARE
+	v_rowcount NUMBER := 1;
+	v_cnt_query VARCHAR2(100);
+BEGIN
+SELECT COUNT(*) INTO v_rowcount FROM PRXBI_DW.E$_2625027_1;
+IF v_rowcount = 0 THEN
+	EXECUTE IMMEDIATE 'DROP TABLE PRXBI_DW.E$_2625027_1 PURGE';
+END IF;
+END;
+  "
+Table Maintenance - Clean Truncated Entry,IKM BIAPPS Oracle Slowly Changing Dimension,,  
