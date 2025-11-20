@@ -1,0 +1,451 @@
+TASK_NAME1,TASK_NAME2,EXEC_SQL_ON_SOURCE,EXEC_SQL_ON_TARGET
+Variable,IS_INCREMENTAL,,"SELECT	(CASE
+WHEN COUNT(*)>0 THEN 'Y'
+ELSE 'N'
+END )
+FROM	PRXBI_DW.W_ETL_LOAD_DATES
+WHERE	PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_GLSEGMENTDIMENSION'
+AND	(DATASOURCE_NUM_ID=#BIAPPS.DATASOURCE_NUM_ID
+OR	DATASOURCE_NUM_ID=#BIAPPS.WH_DATASOURCE_NUM_ID)
+AND 	ETL_USAGE_CODE = '#BIAPPS.ETL_USAGE_CODE'
+AND	COMMITTED='1'"
+Variable,LAST_EXTRACT_DATE,,"SELECT
+COALESCE(TO_CHAR(MIN(LAST_MAX_DATE), 'YYYY-MM-DD HH24:MI:SS'),'1970-01-01 00:00:00')
+FROM   PRXBI_DW.W_ETL_LOAD_DATES
+WHERE PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_GLSEGMENTDIMENSION'
+AND       DATASOURCE_NUM_ID=#BIAPPS.DATASOURCE_NUM_ID
+AND       ETL_USAGE_CODE = '#BIAPPS.ETL_USAGE_CODE'"
+Initialization and log header,LKM BIAPPS SQL to Oracle (Multi Transport),,"/* ===================================================
+-- LKM BIAPPS SQL to Oracle
+-- 11.1.1.8.0.20140418
+-- ===================================================
+---------------------------------------------------
+KM Options
+---------------------------------------------------
+Use DB Link:		N
+SDS deployed:	N
+Alter session:	NOT_APPLICABLE
+
+---------------------------------------------------
+Work Objects
+---------------------------------------------------
+Setting source set number to 0SQ_FND_FLEX_VALUES
+Setting work object name to PRXBI_DW.C$_2624634_2_0
+---------------------------------------------------
+Load Type
+---------------------------------------------------
+Load Type:		NORMAL
+Work Object Type:	TABLE
+
+=================================================== */  "
+Run Alter Session Commands-SRC,LKM BIAPPS SQL to Oracle (Multi Transport),"
+
+/* No alter session commands to run on source */
+
+  ",
+Run Alter Session Commands-SRC (DB Link),LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* Applicable only when altering source session over DB Link */
+  "
+Analyze work table,LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* Skipping stats on work table based on Option chosen =N */
+  "
+SERIAL,EU,,
+Run Alter Session Commands,IKM BIAPPS Oracle Control Append,,"BEGIN
+
+  NULL; 
+END;  "
+SERIAL,MAP_MAIN,,
+SERIAL,EU,,
+Drop work object,LKM BIAPPS SQL to Oracle (Multi Transport),,DROP TABLE PRXBI_DW.C$_2624634_2_0 purge  
+Run Alter Session Commands-TGT,LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* No alter session commands to run on target */
+  "
+Create work object,LKM BIAPPS SQL to Oracle (Multi Transport),,"
+create table PRXBI_DW.C$_2624634_2_0
+(
+	CREATION_DATE	DATE NULL,
+	LAST_UPDATE_DATE1	DATE NULL,
+	CHANGED_ON_DT	DATE NULL,
+	DELETE_FLG	VARCHAR2(4000 BYTE) NULL,
+	SEGMENT_LOV_ID	VARCHAR2(4000 BYTE) NULL,
+	SEGMENT_VAL_CODE	VARCHAR2(4000 BYTE) NULL,
+	CREATED_BY_ID	VARCHAR2(4000 BYTE) NULL,
+	CHANGED_BY_ID	VARCHAR2(4000 BYTE) NULL,
+	SRC_EFF_FROM_DT	DATE NULL,
+	SRC_EFF_TO_DT	DATE NULL,
+	INTEGRATION_ID	VARCHAR2(4000 BYTE) NULL
+)
+NOLOGGING
+  "
+Run Alter Session Commands-SRC (DB Link Mode),LKM BIAPPS SQL to Oracle (Multi Transport),"
+
+/* Applicable only when altering source session over DB Link */
+
+  ",
+Run Alter Session Commands-SRC (DB Link),LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* Applicable only when altering source session over DB Link */
+  "
+Initialization and log header,IKM BIAPPS Oracle Control Append,,"/* ===================================================
+--  IKM BIAPPS Oracle Control Append
+--  11.1.1.10.1.20151007
+-- ===================================================
+---------------------------------------------------
+KM Options
+---------------------------------------------------
+Bulk Mode Option:	N
+Error Logging Option:		N
+Error Logging Supported:		Y
+Is this a Dim ETL:		N
+Auto Correction Enabled:		Y
+Bypass Flow Table:		Y
+DELETE_FLG column present:	Y
+
+---------------------------------------------------
+Work Objects
+---------------------------------------------------
+Setting flow table name to PRXBI_DW.I$_2624634_2
+Setting error table name to E$_2624634_2
+
+DATASOURCE_NUM_ID column is part of the Unique Key
+
+=================================================== */  "
+Create view on source,LKM BIAPPS SQL to Oracle (Multi Transport),"
+/* Db link option not chosen  or SDS is deployed*/
+  ",
+Alter Session - Char Semantics,LKM BIAPPS SQL to Oracle (Multi Transport),,"/* Below statement ensure table lengths are proper for Oracle Unicode Enabled DBs. */
+ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR
+ "
+Load data,LKM BIAPPS SQL to Oracle (Multi Transport),"
+select	
+	SQ_FND_FLEX_VALUES_SQ_FND_FLEX.CREATION_DATE	AS CREATION_DATE,
+	SQ_FND_FLEX_VALUES_SQ_FND_FLEX.LAST_UPDATE_DATE1	AS LAST_UPDATE_DATE1,
+	SQ_FND_FLEX_VALUES_SQ_FND_FLEX.CHANGED_ON_DT	AS CHANGED_ON_DT,
+	SQ_FND_FLEX_VALUES_SQ_FND_FLEX.DELETE_FLG	AS DELETE_FLG,
+	TO_CHAR(SQ_FND_FLEX_VALUES_SQ_FND_FLEX.FLEX_VALUE_SET_ID)	AS SEGMENT_LOV_ID,
+	COALESCE(SQ_FND_FLEX_VALUES_SQ_FND_FLEX.FLEX_VALUE,'__UNASSIGNED__')	AS SEGMENT_VAL_CODE,
+	TO_CHAR(SQ_FND_FLEX_VALUES_SQ_FND_FLEX.CREATED_BY)	AS CREATED_BY_ID,
+	TO_CHAR(SQ_FND_FLEX_VALUES_SQ_FND_FLEX.LAST_UPDATED_BY)	AS CHANGED_BY_ID,
+	TO_DATE('01/01/1899 00:00:00', 'MM/DD/YYYY HH24:MI:SS')	AS SRC_EFF_FROM_DT,
+	TO_DATE('01/01/3714 00:00:00', 'MM/DD/YYYY HH24:MI:SS')	AS SRC_EFF_TO_DT,
+	TO_CHAR(SQ_FND_FLEX_VALUES_SQ_FND_FLEX.FLEX_VALUE_SET_ID) || '~' || SQ_FND_FLEX_VALUES_SQ_FND_FLEX.FLEX_VALUE	AS INTEGRATION_ID
+from	
+( /* Subselect from SDE_ORA_GLSegmentDimension.W_GL_SEGMENT_DS
+*/
+
+select 
+	  
+
+	   FND_FLEX_VALUE_SETS_SQ_FND_FLE.FLEX_VALUE_SET_ID	AS FLEX_VALUE_SET_ID,
+	CASE WHEN FND_FLEX_VALUE_SETS_SQ_FND_FLE.VALIDATION_TYPE='I' THEN
+FND_FLEX_VALUES_SQ_FND_FLEX_VA.FLEX_VALUE
+ELSE FND_FLEX_VALUES_SQ_FND_FLEX_VA.FLEX_VALUE||'~'||FND_FLEX_VALUES_SQ_FND_FLEX_VA.PARENT_FLEX_VALUE_LOW
+END	AS FLEX_VALUE,
+	FND_FLEX_VALUES_SQ_FND_FLEX_VA.LAST_UPDATED_BY	AS LAST_UPDATED_BY,
+	FND_FLEX_VALUES_SQ_FND_FLEX_VA.CREATION_DATE	AS CREATION_DATE,
+	FND_FLEX_VALUES_SQ_FND_FLEX_VA.CREATED_BY	AS CREATED_BY,
+	FND_FLEX_VALUE_SETS_SQ_FND_FLE.LAST_UPDATE_DATE	AS LAST_UPDATE_DATE1,
+	
+FND_FLEX_VALUES_SQ_FND_FLEX_VA.LAST_UPDATE_DATE
+	AS CHANGED_ON_DT,
+	
+'N'
+	AS DELETE_FLG
+from	APPS.FND_FLEX_VALUES FND_FLEX_VALUES_SQ_FND_FLEX_VA  INNER JOIN  APPS.FND_FLEX_VALUE_SETS FND_FLEX_VALUE_SETS_SQ_FND_FLE  
+    ON  FND_FLEX_VALUES_SQ_FND_FLEX_VA.FLEX_VALUE_SET_ID=FND_FLEX_VALUE_SETS_SQ_FND_FLE.FLEX_VALUE_SET_ID
+where	(1=1)
+ and (
+
+(FND_FLEX_VALUES_SQ_FND_FLEX_VA.LAST_UPDATE_DATE > TO_DATE(SUBSTR('#BIAPPS.LAST_EXTRACT_DATE',0,19),'YYYY-MM-DD HH24:MI:SS') or FND_FLEX_VALUE_SETS_SQ_FND_FLE.LAST_UPDATE_DATE > TO_DATE(SUBSTR('#BIAPPS.LAST_EXTRACT_DATE',0,19),'YYYY-MM-DD HH24:MI:SS'))
+
+) and (FND_FLEX_VALUE_SETS_SQ_FND_FLE.VALIDATION_TYPE IN ('I','D'))
+)  SQ_FND_FLEX_VALUES_SQ_FND_FLEX
+where	(1=1)
+  ","insert #BIAPPS.ETL_HINT_INSERT_VALUES into PRXBI_DW.C$_2624634_2_0
+(
+	CREATION_DATE,
+	LAST_UPDATE_DATE1,
+	CHANGED_ON_DT,
+	DELETE_FLG,
+	SEGMENT_LOV_ID,
+	SEGMENT_VAL_CODE,
+	CREATED_BY_ID,
+	CHANGED_BY_ID,
+	SRC_EFF_FROM_DT,
+	SRC_EFF_TO_DT,
+	INTEGRATION_ID
+)
+values
+(
+	:CREATION_DATE,
+	:LAST_UPDATE_DATE1,
+	:CHANGED_ON_DT,
+	:DELETE_FLG,
+	:SEGMENT_LOV_ID,
+	:SEGMENT_VAL_CODE,
+	:CREATED_BY_ID,
+	:CHANGED_BY_ID,
+	:SRC_EFF_FROM_DT,
+	:SRC_EFF_TO_DT,
+	:INTEGRATION_ID
+)  "
+Alter Session - Char Semantics,IKM BIAPPS Oracle Control Append,,"
+
+/* Below statement ensure table lengths are proper for Oracle Unicode Enabled DBs.
+ */
+BEGIN
+EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_DATE_FORMAT=''DD/MON/YYYY HH24:MI:SS''';
+EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR'  ; 
+END;
+
+  "
+Table Maintenance - Clean Truncated Entry,IKM BIAPPS Oracle Control Append,,  
+Table Maintenance Before,IKM BIAPPS Oracle Control Append,,  
+Create flow table I$,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Insert flow into I$ table,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Diagnostics - Get all UK columns,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Diagnostics - Reinsert String violation records into I$,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode, if ETL diagnostics is supported and auto correct flag is enabled */
+   "
+Diagnostics - Drop Error Table,IKM BIAPPS Oracle Control Append,, drop table  PRXBI_DW.E$_2624634_2  purge    
+Diagnostics - Create Error Table,IKM BIAPPS Oracle Control Append,,"
+/* Creates the error table during Error Logging Mode */
+CREATE TABLE PRXBI_DW.E$_2624634_2
+( 
+	ORA_ERR_NUMBER$		NUMBER,         
+	ORA_ERR_MESG$		VARCHAR2(2000),
+	ORA_ERR_ROWID$		UROWID,
+	ORA_ERR_OPTYP$		VARCHAR2(2),
+	ORA_ERR_TAG$		VARCHAR2(2000),
+	IND_UPDATE			VARCHAR2(10),
+	DIAGNOSTIC_ROWID		UROWID,
+	ERROR_TYPE_IND		VARCHAR2(100),	
+	AUTOCORRECT_IND		VARCHAR2(100)  DEFAULT 'N',
+	AUTOCORRECT_CODE		VARCHAR2(2000),
+	AUTOCORRECT_DESC		VARCHAR2(2000),
+	COMMITTED			VARCHAR2(10) DEFAULT '0',
+	SEGMENT_LOV_ID		 VARCHAR2(4000),
+	 SEGMENT_VAL_CODE		 VARCHAR2(4000),
+	 CREATED_BY_ID		 VARCHAR2(4000),
+	 CHANGED_BY_ID		 VARCHAR2(4000),
+	 CREATED_ON_DT		 VARCHAR2(4000),
+	 CHANGED_ON_DT		 VARCHAR2(4000),
+	 AUX1_CHANGED_ON_DT		 VARCHAR2(4000),
+	 SRC_EFF_FROM_DT		 VARCHAR2(4000),
+	 SRC_EFF_TO_DT		 VARCHAR2(4000),
+	 
+	 DATASOURCE_NUM_ID		 VARCHAR2(4000),
+	 INTEGRATION_ID		 VARCHAR2(4000),
+	 TENANT_ID		 VARCHAR2(4000),
+	 X_CUSTOM		 VARCHAR2(4000),
+	DELETE_FLG			VARCHAR2(4000)
+) NOLOGGING
+  "
+Drop flow table,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Diagnostics - Insert unspec valued records in I$ (Dim ETL),IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only for dimension ETL in error logging mode if ETL diagnostics is supported and a UK defined */
+   "
+"Diagnostics - Find Dupes,Cnstrnt Vltn rows on I$",IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+
+  "
+Diagnostics - Flag bad rows in I$,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported and auto correct flag is enabled */
+  "
+Diagnostics - Selective Autocorrect of I$,IKM BIAPPS Oracle Control Append,,"BEGIN
+NULL;
+
+
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported and auto correct flag is enabled */
+
+
+END;
+  "
+Run Alter Session1 Commands,IKM BIAPPS Oracle Control Append,,"BEGIN
+
+  NULL; 
+END;  "
+Drop work object,LKM BIAPPS SQL to Oracle (Multi Transport),,DROP TABLE PRXBI_DW.C$_2624634_2_0 purge  
+Diagnostics - Raise Error for Unacceptable Errors (Dim ETL),IKM BIAPPS Oracle Control Append,,  
+Diagnostics - Dim Fixes and E$ AutoCorrect Flag Update,IKM BIAPPS Oracle Control Append,,"BEGIN
+
+ 
+
+ 
+NULL;
+END;  "
+Diagnostics - Insert Diagnostic Summary Table,IKM BIAPPS Oracle Control Append,,"DECLARE
+V_ERR_COUNT INTEGER;
+BEGIN
+/*Error Logging not enabled */ 
+NULL;
+END;  "
+Insert new rows,IKM BIAPPS Oracle Control Append,,"  
+insert  into	PRXBI_DW.W_GL_SEGMENT_DS 
+( 
+	SEGMENT_LOV_ID,
+	SEGMENT_VAL_CODE,
+	CREATED_BY_ID,
+	CHANGED_BY_ID,
+	CREATED_ON_DT,
+	CHANGED_ON_DT,
+	AUX1_CHANGED_ON_DT,
+	SRC_EFF_FROM_DT,
+	SRC_EFF_TO_DT,
+	DELETE_FLG,
+	DATASOURCE_NUM_ID,
+	INTEGRATION_ID 
+	,TENANT_ID,
+	X_CUSTOM 
+) 
+select	
+	SEGMENT_LOV_ID,
+	SEGMENT_VAL_CODE,
+	CREATED_BY_ID,
+	CHANGED_BY_ID,
+	CREATED_ON_DT,
+	CHANGED_ON_DT,
+	AUX1_CHANGED_ON_DT,
+	SRC_EFF_FROM_DT,
+	SRC_EFF_TO_DT,
+	DELETE_FLG,
+	DATASOURCE_NUM_ID,
+	INTEGRATION_ID
+	,'#BIAPPS.TENANT_ID',
+	'0'
+FROM (	
+select 	
+	SQ_FND_FLEX_VALUES_A.SEGMENT_LOV_ID SEGMENT_LOV_ID,
+	SQ_FND_FLEX_VALUES_A.SEGMENT_VAL_CODE SEGMENT_VAL_CODE,
+	SQ_FND_FLEX_VALUES_A.CREATED_BY_ID CREATED_BY_ID,
+	SQ_FND_FLEX_VALUES_A.CHANGED_BY_ID CHANGED_BY_ID,
+	SQ_FND_FLEX_VALUES_A.CREATION_DATE CREATED_ON_DT,
+	SQ_FND_FLEX_VALUES_A.CHANGED_ON_DT CHANGED_ON_DT,
+	SQ_FND_FLEX_VALUES_A.LAST_UPDATE_DATE1 AUX1_CHANGED_ON_DT,
+	SQ_FND_FLEX_VALUES_A.SRC_EFF_FROM_DT SRC_EFF_FROM_DT,
+	SQ_FND_FLEX_VALUES_A.SRC_EFF_TO_DT SRC_EFF_TO_DT,
+	SQ_FND_FLEX_VALUES_A.DELETE_FLG DELETE_FLG,
+	#BIAPPS.DATASOURCE_NUM_ID DATASOURCE_NUM_ID,
+	SQ_FND_FLEX_VALUES_A.INTEGRATION_ID INTEGRATION_ID 
+from	PRXBI_DW.C$_2624634_2_0 SQ_FND_FLEX_VALUES_A
+where		(1=1)	
+)  ODI_GET_FROM
+  "
+Insert reference dates,IKM BIAPPS Oracle Control Append,,"Check if records exists in W_ETL_LOAD_DATE TABLE
+--Query run
+--select count(1),MAX(LAST_MAX_DATE) from PRXBI_DW.W_ETL_LOAD_DATES where  DATASOURCE_NUM_ID = 380 and PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_GLSEGMENTDIMENSION' and ETL_USAGE_CODE = '__NOT_APPLICABLE__'
+--Result:1,2025-11-06 20:11:52.0
+
+--Insert/Update reference dates
+
+update PRXBI_DW.W_ETL_LOAD_DATES
+set
+  TARGET_TABLE_NAME =   'W_GL_SEGMENT_DS', 
+  ETL_PROC_WID =   :BIAPPS.ETL_PROC_WID,
+  LOAD_PLAN_ID = :BIAPPS.EXECUTION_ID,
+  WIP_LOAD_START_DATE =   (SYSDATE+(-1)*#BIAPPS.PRUNE_DAYS),  
+
+  ETL_LOAD_DATE =   SYSDATE,
+  COMMITTED = DECODE('#BIAPPS.IS_INCREMENTAL','Y','1','0')
+where DATASOURCE_NUM_ID = :BIAPPS.DATASOURCE_NUM_ID
+and PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_GLSEGMENTDIMENSION'
+and ETL_USAGE_CODE = :BIAPPS.ETL_USAGE_CODE
+
+  "
+Insert reference dates to History Table,IKM BIAPPS Oracle Control Append,,"/* Insert/Update reference dates into History Table */
+insert into PRXBI_DW.W_ETL_LOAD_DATES_LOG
+ (DATASOURCE_NUM_ID,
+  PACKAGE_NAME,
+  TARGET_TABLE_NAME,
+  ETL_USAGE_CODE,
+  ETL_PROC_WID,
+  LOAD_PLAN_ID,
+  SESSION_ID,
+  WIP_LOAD_START_DATE,
+  LAST_MAX_DATE,
+  ETL_LOAD_DATE,
+  COMMITTED
+ )
+select
+  DATASOURCE_NUM_ID,
+  PACKAGE_NAME,
+  TARGET_TABLE_NAME,
+  ETL_USAGE_CODE,
+  ETL_PROC_WID,
+  LOAD_PLAN_ID,
+  2624634,
+  WIP_LOAD_START_DATE,
+  LAST_MAX_DATE,
+  ETL_LOAD_DATE,
+  COMMITTED
+FROM PRXBI_DW.W_ETL_LOAD_DATES
+where DATASOURCE_NUM_ID = :BIAPPS.DATASOURCE_NUM_ID
+and PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_GLSEGMENTDIMENSION'
+and ETL_USAGE_CODE = :BIAPPS.ETL_USAGE_CODE  "
+Commit Transaction,IKM BIAPPS Oracle Control Append,,"/*commit*/
+ "
+Table Maintenance After,IKM BIAPPS Oracle Control Append,,  
+Diagnostics - Find Duplicates and Autocorrect,IKM BIAPPS Oracle Control Append,,"Derive OBI_TABLE_MAINTENANCE behaviour for target table
+--Table Truncate behaviour: ALWAYS
+--Truncate Table Behaviour Always ?:	true
+--Is Full Mode ?:	false
+
+
+/* Finds the duplicates on Target Table during Full Load or if Table Truncate behaviour is ALWAYS and Delete duplicates*/
+
+DECLARE
+  v_EVENT_SEQ_NUM NUMBER(5,0) :=0;      
+  v_EVENT_RESULT VARCHAR2(100);
+  v_LOOPCTR INTEGER;
+  v_EXITLOOP boolean;
+  v_COUNT INTEGER;
+  v_ERRMESG VARCHAR2(1000);
+  v_index_exists_flg INTEGER:=0;
+  v_tmp_index_exists_flg INTEGER:=0;
+  IndexExists EXCEPTION;
+  PkExists  EXCEPTION;
+  IndNotEnfCons EXCEPTION;
+  ResourceBusy EXCEPTION;
+  pragma exception_init( IndexExists,-955);
+  pragma exception_init( PkExists,-2261);
+  pragma exception_init( IndNotEnfCons,-14196);
+  pragma exception_init( ResourceBusy,-54);
+BEGIN
+
+-- In case of no other actions
+  NULL;
+END;
+  "
+SERIAL,MAP_CLEANUP,,
+SERIAL,EU,,
+Table Maintenance - Clean Truncated Entry,IKM BIAPPS Oracle Control Append,,  
+Diagnostics - Update Committed Flag,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed */
+
+  "
+Drop flow table,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+
+  "
+Diagnostics - Drop Error Table if empty,IKM BIAPPS Oracle Control Append,,"
+DECLARE
+	v_rowcount NUMBER := 1;
+	v_cnt_query VARCHAR2(100);
+BEGIN
+SELECT COUNT(*) INTO v_rowcount FROM PRXBI_DW.E$_2624634_2;
+IF v_rowcount = 0 THEN
+	EXECUTE IMMEDIATE 'DROP TABLE PRXBI_DW.E$_2624634_2 PURGE';
+END IF;
+END;
+  "
+Drop View on Source,LKM BIAPPS SQL to Oracle (Multi Transport),  ,
+Drop Alter Session Procedure (DB Link),LKM BIAPPS SQL to Oracle (Multi Transport),"
+
+  ",
