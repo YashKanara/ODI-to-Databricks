@@ -1,0 +1,470 @@
+TASK_NAME1,TASK_NAME2,EXEC_SQL_ON_SOURCE,EXEC_SQL_ON_TARGET
+Variable,IS_INCREMENTAL,,"SELECT	(CASE
+WHEN COUNT(*)>0 THEN 'Y'
+ELSE 'N'
+END )
+FROM	PRXBI_DW.W_ETL_LOAD_DATES
+WHERE	PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_LEDGERDIMENSION'
+AND	(DATASOURCE_NUM_ID=#BIAPPS.DATASOURCE_NUM_ID
+OR	DATASOURCE_NUM_ID=#BIAPPS.WH_DATASOURCE_NUM_ID)
+AND 	ETL_USAGE_CODE = '#BIAPPS.ETL_USAGE_CODE'
+AND	COMMITTED='1'"
+Variable,LAST_EXTRACT_DATE,,"SELECT
+COALESCE(TO_CHAR(MIN(LAST_MAX_DATE), 'YYYY-MM-DD HH24:MI:SS'),'1970-01-01 00:00:00')
+FROM   PRXBI_DW.W_ETL_LOAD_DATES
+WHERE PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_LEDGERDIMENSION'
+AND       DATASOURCE_NUM_ID=#BIAPPS.DATASOURCE_NUM_ID
+AND       ETL_USAGE_CODE = '#BIAPPS.ETL_USAGE_CODE'"
+SERIAL,MAP_MAIN,,
+SERIAL,EU,,
+Initialization and log header,LKM BIAPPS SQL to Oracle (Multi Transport),,"/* ===================================================
+-- LKM BIAPPS SQL to Oracle
+-- 11.1.1.8.0.20140418
+-- ===================================================
+---------------------------------------------------
+KM Options
+---------------------------------------------------
+Use DB Link:		N
+SDS deployed:	N
+Alter session:	NOT_APPLICABLE
+
+---------------------------------------------------
+Work Objects
+---------------------------------------------------
+Setting source set number to 0SQ_GL_LEDGERS
+Setting work object name to PRXBI_DW.C$_2624261_2_0
+---------------------------------------------------
+Load Type
+---------------------------------------------------
+Load Type:		NORMAL
+Work Object Type:	TABLE
+
+=================================================== */  "
+Drop work object,LKM BIAPPS SQL to Oracle (Multi Transport),,DROP TABLE PRXBI_DW.C$_2624261_2_0 purge  
+Run Alter Session Commands-SRC,LKM BIAPPS SQL to Oracle (Multi Transport),"
+
+/* No alter session commands to run on source */
+
+  ",
+Run Alter Session Commands-SRC (DB Link Mode),LKM BIAPPS SQL to Oracle (Multi Transport),"
+
+/* Applicable only when altering source session over DB Link */
+
+  ",
+Run Alter Session Commands-SRC (DB Link),LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* Applicable only when altering source session over DB Link */
+  "
+Run Alter Session Commands-SRC (DB Link),LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* Applicable only when altering source session over DB Link */
+  "
+Run Alter Session Commands-TGT,LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* No alter session commands to run on target */
+  "
+Create view on source,LKM BIAPPS SQL to Oracle (Multi Transport),"
+/* Db link option not chosen  or SDS is deployed*/
+  ",
+Alter Session - Char Semantics,LKM BIAPPS SQL to Oracle (Multi Transport),,"/* Below statement ensure table lengths are proper for Oracle Unicode Enabled DBs. */
+ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR
+ "
+Create work object,LKM BIAPPS SQL to Oracle (Multi Transport),,"
+create table PRXBI_DW.C$_2624261_2_0
+(
+	NAME	VARCHAR2(4000 BYTE) NULL,
+	SHORT_NAME	VARCHAR2(4000 BYTE) NULL,
+	DESCRIPTION	VARCHAR2(4000 BYTE) NULL,
+	PERIOD_SET_NAME	VARCHAR2(4000 BYTE) NULL,
+	LAST_UPDATE_DATE	DATE NULL,
+	CREATION_DATE	DATE NULL,
+	USER_PERIOD_TYPE	VARCHAR2(4000 BYTE) NULL,
+	CHART_OF_ACCOUNTS	VARCHAR2(4000 BYTE) NULL,
+	CURRENCY_CODE	VARCHAR2(4000 BYTE) NULL,
+	SLA_ACCOUNTING_METHOD_CODE	VARCHAR2(4000 BYTE) NULL,
+	LEDGER_CATEGORY_CODE	VARCHAR2(4000 BYTE) NULL,
+	CREATED_BY_ID	VARCHAR2(4000 BYTE) NULL,
+	CHANGED_BY_ID	VARCHAR2(4000 BYTE) NULL,
+	INTEGRATION_ID	VARCHAR2(4000 BYTE) NULL
+)
+NOLOGGING
+  "
+Load data,LKM BIAPPS SQL to Oracle (Multi Transport),"
+select	
+	SQ_GL_LEDGERS_SQ_GL_LEDGERS.NAME	AS NAME,
+	SQ_GL_LEDGERS_SQ_GL_LEDGERS.SHORT_NAME	AS SHORT_NAME,
+	SQ_GL_LEDGERS_SQ_GL_LEDGERS.DESCRIPTION	AS DESCRIPTION,
+	SQ_GL_LEDGERS_SQ_GL_LEDGERS.PERIOD_SET_NAME	AS PERIOD_SET_NAME,
+	SQ_GL_LEDGERS_SQ_GL_LEDGERS.LAST_UPDATE_DATE	AS LAST_UPDATE_DATE,
+	SQ_GL_LEDGERS_SQ_GL_LEDGERS.CREATION_DATE	AS CREATION_DATE,
+	SQ_GL_LEDGERS_SQ_GL_LEDGERS.USER_PERIOD_TYPE	AS USER_PERIOD_TYPE,
+	TO_CHAR(SQ_GL_LEDGERS_SQ_GL_LEDGERS.CHART_OF_ACCOUNTS_ID)	AS CHART_OF_ACCOUNTS,
+	COALESCE(SQ_GL_LEDGERS_SQ_GL_LEDGERS.CURRENCY_CODE,'__UNASSIGNED__')	AS CURRENCY_CODE,
+	COALESCE(SQ_GL_LEDGERS_SQ_GL_LEDGERS.SLA_ACCOUNTING_METHOD_CODE,'__UNASSIGNED__')	AS SLA_ACCOUNTING_METHOD_CODE,
+	COALESCE(SQ_GL_LEDGERS_SQ_GL_LEDGERS.LEDGER_CATEGORY_CODE,'__UNASSIGNED__')	AS LEDGER_CATEGORY_CODE,
+	TO_CHAR(SQ_GL_LEDGERS_SQ_GL_LEDGERS.CREATED_BY)	AS CREATED_BY_ID,
+	TO_CHAR(SQ_GL_LEDGERS_SQ_GL_LEDGERS.LAST_UPDATED_BY)	AS CHANGED_BY_ID,
+	TO_CHAR(SQ_GL_LEDGERS_SQ_GL_LEDGERS.LEDGER_ID)	AS INTEGRATION_ID
+from	
+( /* Subselect from SDE_ORA_LedgerDimension.W_LEDGER_DS
+*/
+
+select 
+	  
+
+	   GL_LEDGERS_SQ_GL_LEDGERS.LEDGER_ID	AS LEDGER_ID,
+	GL_LEDGERS_SQ_GL_LEDGERS.NAME	AS NAME,
+	GL_LEDGERS_SQ_GL_LEDGERS.SHORT_NAME	AS SHORT_NAME,
+	GL_LEDGERS_SQ_GL_LEDGERS.DESCRIPTION	AS DESCRIPTION,
+	GL_LEDGERS_SQ_GL_LEDGERS.LEDGER_CATEGORY_CODE	AS LEDGER_CATEGORY_CODE,
+	GL_LEDGERS_SQ_GL_LEDGERS.CHART_OF_ACCOUNTS_ID	AS CHART_OF_ACCOUNTS_ID,
+	GL_LEDGERS_SQ_GL_LEDGERS.CURRENCY_CODE	AS CURRENCY_CODE,
+	GL_LEDGERS_SQ_GL_LEDGERS.PERIOD_SET_NAME	AS PERIOD_SET_NAME,
+	GL_LEDGERS_SQ_GL_LEDGERS.SLA_ACCOUNTING_METHOD_CODE	AS SLA_ACCOUNTING_METHOD_CODE,
+	GL_LEDGERS_SQ_GL_LEDGERS.LAST_UPDATE_DATE	AS LAST_UPDATE_DATE,
+	GL_LEDGERS_SQ_GL_LEDGERS.LAST_UPDATED_BY	AS LAST_UPDATED_BY,
+	GL_LEDGERS_SQ_GL_LEDGERS.CREATION_DATE	AS CREATION_DATE,
+	GL_LEDGERS_SQ_GL_LEDGERS.CREATED_BY	AS CREATED_BY,
+	GL_PERIOD_TYPES_SQ_GL_LEDGERS.USER_PERIOD_TYPE	AS USER_PERIOD_TYPE
+from	APPS.GL_LEDGERS GL_LEDGERS_SQ_GL_LEDGERS ,  APPS.GL_PERIOD_TYPES GL_PERIOD_TYPES_SQ_GL_LEDGERS      ,  APPS.XLA_ACCTG_METHODS_TL XLA_ACCTG_METHODS_TL_SQ_GL_LED     
+where	(1=1)
+AND (GL_LEDGERS_SQ_GL_LEDGERS.ACCOUNTED_PERIOD_TYPE=GL_PERIOD_TYPES_SQ_GL_LEDGERS.PERIOD_TYPE) AND ((GL_LEDGERS_SQ_GL_LEDGERS.SLA_ACCOUNTING_METHOD_TYPE=XLA_ACCTG_METHODS_TL_SQ_GL_LED.ACCOUNTING_METHOD_TYPE_CODE(+)) and (GL_LEDGERS_SQ_GL_LEDGERS.SLA_ACCOUNTING_METHOD_CODE=XLA_ACCTG_METHODS_TL_SQ_GL_LED.ACCOUNTING_METHOD_CODE(+))) 
+ and (NVL(GL_LEDGERS_SQ_GL_LEDGERS.COMPLETE_FLAG,'Y')='Y') and (GL_LEDGERS_SQ_GL_LEDGERS.OBJECT_TYPE_CODE='L') and (XLA_ACCTG_METHODS_TL_SQ_GL_LED.LANGUAGE(+)= '#BIAPPS.LANGUAGE_BASE')
+)  SQ_GL_LEDGERS_SQ_GL_LEDGERS
+where	(1=1)
+  ","insert #BIAPPS.ETL_HINT_INSERT_VALUES into PRXBI_DW.C$_2624261_2_0
+(
+	NAME,
+	SHORT_NAME,
+	DESCRIPTION,
+	PERIOD_SET_NAME,
+	LAST_UPDATE_DATE,
+	CREATION_DATE,
+	USER_PERIOD_TYPE,
+	CHART_OF_ACCOUNTS,
+	CURRENCY_CODE,
+	SLA_ACCOUNTING_METHOD_CODE,
+	LEDGER_CATEGORY_CODE,
+	CREATED_BY_ID,
+	CHANGED_BY_ID,
+	INTEGRATION_ID
+)
+values
+(
+	:NAME,
+	:SHORT_NAME,
+	:DESCRIPTION,
+	:PERIOD_SET_NAME,
+	:LAST_UPDATE_DATE,
+	:CREATION_DATE,
+	:USER_PERIOD_TYPE,
+	:CHART_OF_ACCOUNTS,
+	:CURRENCY_CODE,
+	:SLA_ACCOUNTING_METHOD_CODE,
+	:LEDGER_CATEGORY_CODE,
+	:CREATED_BY_ID,
+	:CHANGED_BY_ID,
+	:INTEGRATION_ID
+)  "
+Analyze work table,LKM BIAPPS SQL to Oracle (Multi Transport),,"
+/* Skipping stats on work table based on Option chosen =N */
+  "
+SERIAL,EU,,
+Initialization and log header,IKM BIAPPS Oracle Control Append,,"/* ===================================================
+--  IKM BIAPPS Oracle Control Append
+--  11.1.1.10.1.20151007
+-- ===================================================
+---------------------------------------------------
+KM Options
+---------------------------------------------------
+Bulk Mode Option:	N
+Error Logging Option:		N
+Error Logging Supported:		Y
+Is this a Dim ETL:		N
+Auto Correction Enabled:		Y
+Bypass Flow Table:		Y
+DELETE_FLG column present:	Y
+
+---------------------------------------------------
+Work Objects
+---------------------------------------------------
+Setting flow table name to PRXBI_DW.I$_2624261_2
+Setting error table name to E$_2624261_2
+
+DATASOURCE_NUM_ID column is part of the Unique Key
+
+=================================================== */  "
+Run Alter Session Commands,IKM BIAPPS Oracle Control Append,,"BEGIN
+
+  NULL; 
+END;  "
+Alter Session - Char Semantics,IKM BIAPPS Oracle Control Append,,"
+
+/* Below statement ensure table lengths are proper for Oracle Unicode Enabled DBs.
+ */
+BEGIN
+EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_DATE_FORMAT=''DD/MON/YYYY HH24:MI:SS''';
+EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_LENGTH_SEMANTICS=CHAR'  ; 
+END;
+
+  "
+Diagnostics - Drop Error Table,IKM BIAPPS Oracle Control Append,, drop table  PRXBI_DW.E$_2624261_2  purge    
+Diagnostics - Create Error Table,IKM BIAPPS Oracle Control Append,,"
+/* Creates the error table during Error Logging Mode */
+CREATE TABLE PRXBI_DW.E$_2624261_2
+( 
+	ORA_ERR_NUMBER$		NUMBER,         
+	ORA_ERR_MESG$		VARCHAR2(2000),
+	ORA_ERR_ROWID$		UROWID,
+	ORA_ERR_OPTYP$		VARCHAR2(2),
+	ORA_ERR_TAG$		VARCHAR2(2000),
+	IND_UPDATE			VARCHAR2(10),
+	DIAGNOSTIC_ROWID		UROWID,
+	ERROR_TYPE_IND		VARCHAR2(100),	
+	AUTOCORRECT_IND		VARCHAR2(100)  DEFAULT 'N',
+	AUTOCORRECT_CODE		VARCHAR2(2000),
+	AUTOCORRECT_DESC		VARCHAR2(2000),
+	COMMITTED			VARCHAR2(10) DEFAULT '0',
+	LEDGER_NAME		 VARCHAR2(4000),
+	 LEDGER_SHORT_NAME		 VARCHAR2(4000),
+	 LEDGER_DESC		 VARCHAR2(4000),
+	 CHART_OF_ACCOUNTS		 VARCHAR2(4000),
+	 CURRENCY_CODE		 VARCHAR2(4000),
+	 CALENDER_NAME		 VARCHAR2(4000),
+	 SLA_ACCOUNTING_METHOD_CODE		 VARCHAR2(4000),
+	 PERIOD_TYPE		 VARCHAR2(4000),
+	 LEDGER_CATEGORY_CODE		 VARCHAR2(4000),
+	 CREATED_BY_ID		 VARCHAR2(4000),
+	 CHANGED_BY_ID		 VARCHAR2(4000),
+	 CREATED_ON_DT		 VARCHAR2(4000),
+	 CHANGED_ON_DT		 VARCHAR2(4000),
+	 
+	 DATASOURCE_NUM_ID		 VARCHAR2(4000),
+	 INTEGRATION_ID		 VARCHAR2(4000),
+	 TENANT_ID		 VARCHAR2(4000),
+	DELETE_FLG			VARCHAR2(4000)
+) NOLOGGING
+  "
+Table Maintenance - Clean Truncated Entry,IKM BIAPPS Oracle Control Append,,  
+Table Maintenance Before,IKM BIAPPS Oracle Control Append,,  
+Drop flow table,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Create flow table I$,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Insert flow into I$ table,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Diagnostics - Get all UK columns,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+  "
+Diagnostics - Reinsert String violation records into I$,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode, if ETL diagnostics is supported and auto correct flag is enabled */
+   "
+Diagnostics - Insert unspec valued records in I$ (Dim ETL),IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only for dimension ETL in error logging mode if ETL diagnostics is supported and a UK defined */
+   "
+"Diagnostics - Find Dupes,Cnstrnt Vltn rows on I$",IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+
+  "
+Diagnostics - Raise Error for Unacceptable Errors (Dim ETL),IKM BIAPPS Oracle Control Append,,  
+Diagnostics - Flag bad rows in I$,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported and auto correct flag is enabled */
+  "
+Diagnostics - Selective Autocorrect of I$,IKM BIAPPS Oracle Control Append,,"BEGIN
+NULL;
+
+
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported and auto correct flag is enabled */
+
+
+END;
+  "
+Diagnostics - Dim Fixes and E$ AutoCorrect Flag Update,IKM BIAPPS Oracle Control Append,,"BEGIN
+
+ 
+
+ 
+NULL;
+END;  "
+Diagnostics - Insert Diagnostic Summary Table,IKM BIAPPS Oracle Control Append,,"DECLARE
+V_ERR_COUNT INTEGER;
+BEGIN
+/*Error Logging not enabled */ 
+NULL;
+END;  "
+Run Alter Session1 Commands,IKM BIAPPS Oracle Control Append,,"BEGIN
+
+  NULL; 
+END;  "
+Insert new rows,IKM BIAPPS Oracle Control Append,,"  
+insert  into	PRXBI_DW.W_LEDGER_DS 
+( 
+	LEDGER_NAME,
+	LEDGER_SHORT_NAME,
+	LEDGER_DESC,
+	CHART_OF_ACCOUNTS,
+	CURRENCY_CODE,
+	CALENDER_NAME,
+	SLA_ACCOUNTING_METHOD_CODE,
+	PERIOD_TYPE,
+	LEDGER_CATEGORY_CODE,
+	CREATED_BY_ID,
+	CHANGED_BY_ID,
+	CREATED_ON_DT,
+	CHANGED_ON_DT,
+	DATASOURCE_NUM_ID,
+	INTEGRATION_ID 
+	,DELETE_FLG,
+	TENANT_ID 
+) 
+select	
+	LEDGER_NAME,
+	LEDGER_SHORT_NAME,
+	LEDGER_DESC,
+	CHART_OF_ACCOUNTS,
+	CURRENCY_CODE,
+	CALENDER_NAME,
+	SLA_ACCOUNTING_METHOD_CODE,
+	PERIOD_TYPE,
+	LEDGER_CATEGORY_CODE,
+	CREATED_BY_ID,
+	CHANGED_BY_ID,
+	CREATED_ON_DT,
+	CHANGED_ON_DT,
+	DATASOURCE_NUM_ID,
+	INTEGRATION_ID
+	,'N',
+	'#BIAPPS.TENANT_ID'
+FROM (	
+select 	
+	SQ_GL_LEDGERS_A.NAME LEDGER_NAME,
+	SQ_GL_LEDGERS_A.SHORT_NAME LEDGER_SHORT_NAME,
+	SQ_GL_LEDGERS_A.DESCRIPTION LEDGER_DESC,
+	SQ_GL_LEDGERS_A.CHART_OF_ACCOUNTS CHART_OF_ACCOUNTS,
+	SQ_GL_LEDGERS_A.CURRENCY_CODE CURRENCY_CODE,
+	SQ_GL_LEDGERS_A.PERIOD_SET_NAME CALENDER_NAME,
+	SQ_GL_LEDGERS_A.SLA_ACCOUNTING_METHOD_CODE SLA_ACCOUNTING_METHOD_CODE,
+	SQ_GL_LEDGERS_A.USER_PERIOD_TYPE PERIOD_TYPE,
+	SQ_GL_LEDGERS_A.LEDGER_CATEGORY_CODE LEDGER_CATEGORY_CODE,
+	SQ_GL_LEDGERS_A.CREATED_BY_ID CREATED_BY_ID,
+	SQ_GL_LEDGERS_A.CHANGED_BY_ID CHANGED_BY_ID,
+	SQ_GL_LEDGERS_A.CREATION_DATE CREATED_ON_DT,
+	SQ_GL_LEDGERS_A.LAST_UPDATE_DATE CHANGED_ON_DT,
+	#BIAPPS.DATASOURCE_NUM_ID DATASOURCE_NUM_ID,
+	SQ_GL_LEDGERS_A.INTEGRATION_ID INTEGRATION_ID 
+from	PRXBI_DW.C$_2624261_2_0 SQ_GL_LEDGERS_A
+where		(1=1)	
+)  ODI_GET_FROM
+  "
+Insert reference dates,IKM BIAPPS Oracle Control Append,,"--Check if records exists in W_ETL_LOAD_DATE TABLE
+--Query run
+--select count(1),MAX(LAST_MAX_DATE) from PRXBI_DW.W_ETL_LOAD_DATES where  DATASOURCE_NUM_ID = 380 and PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_LEDGERDIMENSION' and ETL_USAGE_CODE = '__NOT_APPLICABLE__'
+--Result:1,2025-11-06 20:09:43.0
+
+--Insert/Update reference dates
+
+update PRXBI_DW.W_ETL_LOAD_DATES
+set
+  TARGET_TABLE_NAME =   'W_LEDGER_DS', 
+  ETL_PROC_WID =   :BIAPPS.ETL_PROC_WID,
+  LOAD_PLAN_ID = :BIAPPS.EXECUTION_ID,
+  WIP_LOAD_START_DATE =   (SYSDATE+(-1)*#BIAPPS.PRUNE_DAYS),  
+
+  ETL_LOAD_DATE =   SYSDATE,
+  COMMITTED = DECODE('#BIAPPS.IS_INCREMENTAL','Y','1','0')
+where DATASOURCE_NUM_ID = :BIAPPS.DATASOURCE_NUM_ID
+and PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_LEDGERDIMENSION'
+and ETL_USAGE_CODE = :BIAPPS.ETL_USAGE_CODE
+
+  "
+Insert reference dates to History Table,IKM BIAPPS Oracle Control Append,,"/* Insert/Update reference dates into History Table */
+insert into PRXBI_DW.W_ETL_LOAD_DATES_LOG
+ (DATASOURCE_NUM_ID,
+  PACKAGE_NAME,
+  TARGET_TABLE_NAME,
+  ETL_USAGE_CODE,
+  ETL_PROC_WID,
+  LOAD_PLAN_ID,
+  SESSION_ID,
+  WIP_LOAD_START_DATE,
+  LAST_MAX_DATE,
+  ETL_LOAD_DATE,
+  COMMITTED
+ )
+select
+  DATASOURCE_NUM_ID,
+  PACKAGE_NAME,
+  TARGET_TABLE_NAME,
+  ETL_USAGE_CODE,
+  ETL_PROC_WID,
+  LOAD_PLAN_ID,
+  2624261,
+  WIP_LOAD_START_DATE,
+  LAST_MAX_DATE,
+  ETL_LOAD_DATE,
+  COMMITTED
+FROM PRXBI_DW.W_ETL_LOAD_DATES
+where DATASOURCE_NUM_ID = :BIAPPS.DATASOURCE_NUM_ID
+and PACKAGE_NAME = 'SDE_ORAR122_ADAPTOR_SDE_ORA_LEDGERDIMENSION'
+and ETL_USAGE_CODE = :BIAPPS.ETL_USAGE_CODE  "
+Commit Transaction,IKM BIAPPS Oracle Control Append,,"/*commit*/
+ "
+Diagnostics - Find Duplicates and Autocorrect,IKM BIAPPS Oracle Control Append,,"--Derive OBI_TABLE_MAINTENANCE behaviour for target table
+--Table Truncate behaviour: ALWAYS
+--Truncate Table Behaviour Always ?:	true
+--Is Full Mode ?:	false
+
+
+/* Finds the duplicates on Target Table during Full Load or if Table Truncate behaviour is ALWAYS and Delete duplicates*/
+
+DECLARE
+  v_EVENT_SEQ_NUM NUMBER(5,0) :=0;      
+  v_EVENT_RESULT VARCHAR2(100);
+  v_LOOPCTR INTEGER;
+  v_EXITLOOP boolean;
+  v_COUNT INTEGER;
+  v_ERRMESG VARCHAR2(1000);
+  v_index_exists_flg INTEGER:=0;
+  v_tmp_index_exists_flg INTEGER:=0;
+  IndexExists EXCEPTION;
+  PkExists  EXCEPTION;
+  IndNotEnfCons EXCEPTION;
+  ResourceBusy EXCEPTION;
+  pragma exception_init( IndexExists,-955);
+  pragma exception_init( PkExists,-2261);
+  pragma exception_init( IndNotEnfCons,-14196);
+  pragma exception_init( ResourceBusy,-54);
+BEGIN
+
+-- In case of no other actions
+  NULL;
+END;
+  "
+Table Maintenance After,IKM BIAPPS Oracle Control Append,,  
+Table Maintenance - Clean Truncated Entry,IKM BIAPPS Oracle Control Append,,  
+Drop flow table,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed. It runs only in error logging mode if ETL diagnostics is supported */
+
+  "
+Diagnostics - Update Committed Flag,IKM BIAPPS Oracle Control Append,,"
+/* Step bypassed */
+
+  "
+Diagnostics - Drop Error Table if empty,IKM BIAPPS Oracle Control Append,,"
+DECLARE
+	v_rowcount NUMBER := 1;
+	v_cnt_query VARCHAR2(100);
+BEGIN
+SELECT COUNT(*) INTO v_rowcount FROM PRXBI_DW.E$_2624261_2;
+IF v_rowcount = 0 THEN
+	EXECUTE IMMEDIATE 'DROP TABLE PRXBI_DW.E$_2624261_2 PURGE';
+END IF;
+END;
+  "
+SERIAL,MAP_CLEANUP,,
+SERIAL,EU,,
+Drop work object,LKM BIAPPS SQL to Oracle (Multi Transport),,DROP TABLE PRXBI_DW.C$_2624261_2_0 purge  
+Drop View on Source,LKM BIAPPS SQL to Oracle (Multi Transport),  ,
+Drop Alter Session Procedure (DB Link),LKM BIAPPS SQL to Oracle (Multi Transport),"
+
+  ",
