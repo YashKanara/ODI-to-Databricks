@@ -1,0 +1,3 @@
+SCEN_TASK_NO in {1}
+
+OdiInvokeRESTfulService "-CONTEXT=DEV" "-LSCHEMA=LS_Weather" "-RESPONSE_FILE=C:\ODI\weather.json" "-TRACE_FILE=C:\ODI\weather_text.txt"

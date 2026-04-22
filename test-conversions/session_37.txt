@@ -1,0 +1,3 @@
+SCEN_TASK_NO in {1}
+
+select nvl((select to_char(last_run_dt,'dd-mm-yy') from log_table1 where pkg_name = 'Increment_data'),systdate) from dual

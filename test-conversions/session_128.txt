@@ -1,0 +1,60 @@
+SCEN_TASK_NO in {1}
+
+select nvl(
+	(select to_char(last_run_dt,'dd-mm-yy')  
+	from log_table1 
+	where 
+	pkg_name = 'job_pkg' )
+,sysdate) 
+from dual
+SCEN_TASK_NO in {10}
+
+
+SCEN_TASK_NO in {20}
+
+
+SCEN_TASK_NO in {30}
+
+
+
+drop database link LS_ODI_SRC
+ 
+SCEN_TASK_NO in {40}
+
+
+SCEN_TASK_NO in {50}
+
+
+SCEN_TASK_NO in {60}
+
+
+
+create database link LS_ODI_SRC connect to ODI_SRC identified by <@=odiRef.getInfo("SRC_PASS") @> using 'orcl'
+ 
+SCEN_TASK_NO in {70}
+
+
+SCEN_TASK_NO in {80}
+
+
+INSERT 
+  /*+  APPEND PARALLEL  */ 
+  INTO ODI_TRG.TRG_JOBS
+  (
+    JOB_ID ,
+    JOB_TITLE ,
+    MIN_SALARY ,
+    MAX_SALARY ,
+    LAST_UPD_DT 
+  ) 
+SELECT 
+  SRC_JOBS.JOB_ID ,
+  SRC_JOBS.JOB_TITLE ,
+  SRC_JOBS.MIN_SALARY ,
+  SRC_JOBS.MAX_SALARY ,
+  SRC_JOBS.LAST_UPD_DT  
+FROM 
+  ODI_SRC.SRC_JOBS@LS_ODI_SRC SRC_JOBS  
+WHERE
+  (SRC_JOBS.LAST_UPD_DT >= TO_DATE('#TEST.v_lst_dt','DD-MM-YY')
+)  

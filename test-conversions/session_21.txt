@@ -1,0 +1,72 @@
+SCEN_TASK_NO in {10}
+
+
+SCEN_TASK_NO in {20}
+
+
+SCEN_TASK_NO in {30}
+
+
+drop table ODI_TRG.C$_0CITY
+ 
+SCEN_TASK_NO in {40}
+
+
+create table ODI_TRG.C$_0CITY
+(
+  CITYPK NUMBER(10,0),
+COUNTRY VARCHAR2(255)
+)
+ 
+SCEN_TASK_NO in {50}
+
+
+SCEN_TASK_NO in {60}
+
+
+SCEN_TASK_NO in {70}
+
+SELECT 
+  CITY.CITYPK  CITYPK ,
+  CITY.COUNTRY  COUNTRY   
+FROM 
+  WEATHER.CITY CITY   
+
+INSERT INTO ODI_TRG.C$_0CITY (
+      CITYPK,
+ COUNTRY 
+      )
+      VALUES(  
+       :CITYPK  , 
+ :COUNTRY 
+      )
+ 
+SCEN_TASK_NO in {80}
+
+
+SCEN_TASK_NO in {90}
+
+
+INSERT 
+  /*+  APPEND PARALLEL  */ 
+  INTO ODI_TRG.CITY_JSON
+  (
+    CITYPK ,
+    COUNTRY 
+  ) 
+SELECT 
+  CITY_A.CITYPK ,
+  CITY_A.COUNTRY  
+FROM 
+  ODI_TRG.C$_0CITY CITY_A   
+SCEN_TASK_NO in {100}
+
+
+SCEN_TASK_NO in {110}
+
+
+SCEN_TASK_NO in {120}
+
+
+drop table ODI_TRG.C$_0CITY
+ 
